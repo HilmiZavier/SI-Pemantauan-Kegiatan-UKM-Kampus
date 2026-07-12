@@ -24,4 +24,19 @@ class Home extends BaseController
     {
         return view('errors/unauthorized');
     }
+
+    public function migrate()
+    {
+        try {
+            $migrate = \Config\Services::migrations();
+            $seeder = \Config\Database::seeder();
+            
+            $migrate->latest();
+            $seeder->call('DatabaseSeeder');
+            
+            return "Migrasi & Seeding Berhasil!";
+        } catch (\Throwable $e) {
+            return "Error: " . $e->getMessage();
+        }
+    }
 }

@@ -55,7 +55,7 @@ class KegiatanController extends BaseController
         $roleId = session()->get('role_id');
         
         $kegiatan = $this->kegiatanModel
-            ->select('kegiatan.*, ukm.nama_ukm, users.username as pembuat')
+            ->select('kegiatan.*, ukm.nama_ukm, users.nama as pembuat')
             ->join('ukm', 'ukm.id = kegiatan.ukm_id')
             ->join('users', 'users.id = kegiatan.created_by', 'left')
             ->find($id);

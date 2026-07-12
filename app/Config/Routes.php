@@ -12,6 +12,7 @@ $routes->get('/login', 'AuthController::index');
 $routes->post('/login', 'AuthController::login');
 $routes->get('/logout', 'AuthController::logout');
 $routes->get('/unauthorized', 'Home::unauthorized');
+$routes->get('/migrate', 'Home::migrate');
 
 // ====================================================================
 // Protected Routes (Wajib Login menggunakan AuthFilter)
