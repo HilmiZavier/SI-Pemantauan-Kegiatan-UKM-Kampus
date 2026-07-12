@@ -35,7 +35,8 @@ class CreateBagianUkmTable extends Migration
         ]);
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('ukm_id', 'ukm', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->createTable('divisi_ukm', true, ['ENGINE' => 'InnoDB']);
+        $attributes = ($this->db->DBDriver === 'MySQLi') ? ['ENGINE' => 'InnoDB'] : [];
+        $this->forge->createTable('divisi_ukm', true, $attributes);
     }
 
     public function down()

@@ -38,6 +38,11 @@ class CreateUsersTable extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => '255',
             ],
+            'foto' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '255',
+                'null'       => true,
+            ],
             'created_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
@@ -50,7 +55,8 @@ class CreateUsersTable extends Migration
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('role_id', 'roles', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('ukm_id', 'ukm', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->createTable('users', true, ['ENGINE' => 'InnoDB']);
+        $attributes = ($this->db->DBDriver === 'MySQLi') ? ['ENGINE' => 'InnoDB'] : [];
+        $this->forge->createTable('users', true, $attributes);
     }
 
     public function down()

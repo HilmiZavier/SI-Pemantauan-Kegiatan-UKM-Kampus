@@ -29,7 +29,8 @@ class CreateRolesTable extends Migration
             ],
         ]);
         $this->forge->addKey('id', true);
-        $this->forge->createTable('roles', true, ['ENGINE' => 'InnoDB']);
+        $attributes = ($this->db->DBDriver === 'MySQLi') ? ['ENGINE' => 'InnoDB'] : [];
+        $this->forge->createTable('roles', true, $attributes);
     }
 
     public function down()

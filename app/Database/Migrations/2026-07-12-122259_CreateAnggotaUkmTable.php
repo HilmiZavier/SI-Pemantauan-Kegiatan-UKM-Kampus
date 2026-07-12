@@ -65,7 +65,8 @@ class CreateAnggotaUkmTable extends Migration
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('ukm_id', 'ukm', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('divisi_id', 'divisi_ukm', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->createTable('anggota_ukm', true, ['ENGINE' => 'InnoDB']);
+        $attributes = ($this->db->DBDriver === 'MySQLi') ? ['ENGINE' => 'InnoDB'] : [];
+        $this->forge->createTable('anggota_ukm', true, $attributes);
     }
 
     public function down()

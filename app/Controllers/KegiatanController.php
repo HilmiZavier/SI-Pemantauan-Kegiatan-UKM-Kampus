@@ -21,7 +21,7 @@ class KegiatanController extends BaseController
     {
         $roleId = session()->get('role_id');
         
-        if ($roleId == 2) {
+        if ($roleId == 1) {
             // Admin UKM: Hanya melihat kegiatan UKM sendiri
             $ukmId = session()->get('ukm_id');
             $kegiatan = $this->kegiatanModel
@@ -65,7 +65,7 @@ class KegiatanController extends BaseController
         }
 
         // Jika Admin UKM, pastikan hanya bisa melihat detail kegiatannya sendiri
-        if ($roleId == 2 && $kegiatan['ukm_id'] != session()->get('ukm_id')) {
+        if ($roleId == 1 && $kegiatan['ukm_id'] != session()->get('ukm_id')) {
             return redirect()->to('/kegiatan')->with('error', 'Anda tidak memiliki akses ke detail kegiatan ini.');
         }
 
@@ -84,7 +84,7 @@ class KegiatanController extends BaseController
     {
         $roleId = session()->get('role_id');
         
-        if ($roleId != 2) {
+        if ($roleId != 1) {
             return redirect()->back()->with('error', 'Hanya Admin UKM yang dapat menambahkan kegiatan.');
         }
 
@@ -138,7 +138,7 @@ class KegiatanController extends BaseController
     {
         $roleId = session()->get('role_id');
         
-        if ($roleId != 2) {
+        if ($roleId != 1) {
             return redirect()->back()->with('error', 'Hanya Admin UKM yang dapat mengedit kegiatan.');
         }
 
@@ -197,7 +197,7 @@ class KegiatanController extends BaseController
     {
         $roleId = session()->get('role_id');
         
-        if ($roleId != 2) {
+        if ($roleId != 1) {
             return redirect()->back()->with('error', 'Hanya Admin UKM yang dapat menghapus kegiatan.');
         }
 
@@ -225,5 +225,43 @@ class KegiatanController extends BaseController
             $db->transRollback();
             return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Menampilkan form tambah kegiatan
+     */
+    public function create()
+    {
+        $roleId = session()->get('role_id');
+        if ($roleId != 1) {
+            return redirect()->back()->with('error', 'Hanya Admin UKM yang dapat menambahkan kegiatan.');
+        }
+
+        $data = [
+            'title' => 'Tambah Kegiatan Baru'
+        ];
+        return view('kegiatan/create', $data);
+    }
+
+    /**
+     * Menampilkan form edit kegiatan
+     */
+    public function edit($id)
+    {
+        $roleId = session()->get('role_id');
+        if ($roleId != 1) {
+            return redirect()->back()->with('error', 'Hanya Admin UKM yang dapat mengedit kegiatan.');
+        }
+
+        $kegiatan = $this->kegiatanModel->find($id);
+        if (!$kegiatan || $kegiatan['ukm_id'] != session()->get('ukm_id')) {
+            return redirect()->to('/kegiatan')->with('error', 'Kegiatan tidak ditemukan atau Anda tidak memiliki akses.');
+        }
+
+        $data = [
+            'title' => 'Edit Kegiatan',
+            'kegiatan' => $kegiatan
+        ];
+        return view('kegiatan/edit', $data);
     }
 }

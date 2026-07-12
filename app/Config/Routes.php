@@ -8,8 +8,8 @@ use CodeIgniter\Router\RouteCollection;
 // Public Routes (Bisa diakses tanpa login)
 // ====================================================================
 $routes->get('/', 'Home::index');
-$routes->get('/login', 'AuthController::login');
-$routes->post('/login', 'AuthController::processLogin');
+$routes->get('/login', 'AuthController::index');
+$routes->post('/login', 'AuthController::login');
 $routes->get('/logout', 'AuthController::logout');
 $routes->get('/unauthorized', 'Home::unauthorized');
 
@@ -29,6 +29,11 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     // CRUD Routes (Bisa diakses user login, role logic ada di controller)
     // ----------------------------------------------------------------
     
+    // Profile Management (Semua Role)
+    $routes->get('profile', 'ProfileController::index');
+    $routes->post('profile/update', 'ProfileController::update');
+    $routes->get('profile/delete', 'ProfileController::delete');
+
     // User Management
     $routes->get('user', 'UserController::index');
     $routes->get('user/create', 'UserController::create');
@@ -80,6 +85,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get('proposal/delete/(:num)', 'ProposalController::delete/$1');
     $routes->post('proposal/approve/(:num)', 'ProposalController::approve/$1');
     $routes->post('proposal/revisi/(:num)', 'ProposalController::revisi/$1');
+    $routes->post('proposal/tolak/(:num)', 'ProposalController::tolak/$1');
 
     // LPJ
     $routes->get('lpj', 'LPJKegiatanController::index');
@@ -91,5 +97,6 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get('lpj/delete/(:num)', 'LPJKegiatanController::delete/$1');
     $routes->post('lpj/approve/(:num)', 'LPJKegiatanController::approve/$1');
     $routes->post('lpj/revisi/(:num)', 'LPJKegiatanController::revisi/$1');
+    $routes->post('lpj/tolak/(:num)', 'LPJKegiatanController::tolak/$1');
 
 });

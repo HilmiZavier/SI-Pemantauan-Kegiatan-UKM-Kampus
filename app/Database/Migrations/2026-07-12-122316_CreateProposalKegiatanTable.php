@@ -83,7 +83,8 @@ class CreateProposalKegiatanTable extends Migration
         $this->forge->addForeignKey('kegiatan_id', 'kegiatan', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('verified_by_kemahasiswaan', 'users', 'id', 'SET NULL', 'CASCADE');
         $this->forge->addForeignKey('verified_by_wakilrektor3', 'users', 'id', 'SET NULL', 'CASCADE');
-        $this->forge->createTable('proposal_kegiatan', true, ['ENGINE' => 'InnoDB']);
+        $attributes = ($this->db->DBDriver === 'MySQLi') ? ['ENGINE' => 'InnoDB'] : [];
+        $this->forge->createTable('proposal_kegiatan', true, $attributes);
     }
 
     public function down()

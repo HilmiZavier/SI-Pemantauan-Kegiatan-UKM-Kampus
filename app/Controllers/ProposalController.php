@@ -56,7 +56,7 @@ class ProposalController extends BaseController
     /**
      * Menampilkan detail proposal
      */
-    public function detail($id)
+    public function show($id)
     {
         $roleId = session()->get('role_id');
         $ukmId = session()->get('ukm_id');
@@ -76,7 +76,7 @@ class ProposalController extends BaseController
             return redirect()->to('/proposal')->with('error', 'Akses ditolak.');
         }
 
-        return view('proposal/detail', [
+        return view('proposal/show', [
             'proposal' => $proposal
         ]);
     }
@@ -139,7 +139,7 @@ class ProposalController extends BaseController
                 'anggaran' => $this->request->getPost('anggaran'),
                 'status' => 'PENGAJUAN',
                 'status_kemahasiswaan' => 'PENDING',
-                'status_wakil_rektor_3' => 'PENDING',
+                'status_wakilrektor3' => 'PENDING',
             ]);
 
             $this->db->transCommit();
@@ -225,7 +225,7 @@ class ProposalController extends BaseController
                 'anggaran' => $this->request->getPost('anggaran'),
                 'status' => 'PENGAJUAN',
                 'status_kemahasiswaan' => 'PENDING',
-                'status_wakil_rektor_3' => 'PENDING',
+                'status_wakilrektor3' => 'PENDING',
             ];
 
             if ($file && $file->isValid() && !$file->hasMoved()) {
@@ -409,10 +409,10 @@ class ProposalController extends BaseController
         try {
             $this->proposalModel->update($id, [
                 'status' => 'APPROVED',
-                'status_wakil_rektor_3' => 'APPROVED',
-                'verified_by_wakil_rektor_3' => session()->get('user_id'),
-                'verified_at_wakil_rektor_3' => date('Y-m-d H:i:s'),
-                'catatan_wakil_rektor_3' => null // reset catatan jika sebelumnya direvisi
+                'status_wakilrektor3' => 'APPROVED',
+                'verified_by_wakilrektor3' => session()->get('user_id'),
+                'verified_at_wakilrektor3' => date('Y-m-d H:i:s'),
+                'catatan_wakilrektor3' => null // reset catatan jika sebelumnya direvisi
             ]);
 
             $this->kegiatanModel->update($proposal['kegiatan_id'], [
@@ -433,7 +433,7 @@ class ProposalController extends BaseController
             return redirect()->back()->with('error', 'Akses ditolak.');
         }
 
-        if (!$this->validate(['catatan_wakil_rektor_3' => 'required'])) {
+        if (!$this->validate(['catatan_wakilrektor3' => 'required'])) {
             return redirect()->back()->with('error', 'Catatan revisi wajib diisi.');
         }
 
@@ -446,10 +446,10 @@ class ProposalController extends BaseController
         try {
             $this->proposalModel->update($id, [
                 'status' => 'REVISI_WAKIL_REKTOR_3',
-                'status_wakil_rektor_3' => 'REVISI',
-                'catatan_wakil_rektor_3' => $this->request->getPost('catatan_wakil_rektor_3'),
-                'verified_by_wakil_rektor_3' => session()->get('user_id'),
-                'verified_at_wakil_rektor_3' => date('Y-m-d H:i:s')
+                'status_wakilrektor3' => 'REVISI',
+                'catatan_wakilrektor3' => $this->request->getPost('catatan_wakilrektor3'),
+                'verified_by_wakilrektor3' => session()->get('user_id'),
+                'verified_at_wakilrektor3' => date('Y-m-d H:i:s')
             ]);
 
             $this->db->transCommit();
@@ -466,7 +466,7 @@ class ProposalController extends BaseController
             return redirect()->back()->with('error', 'Akses ditolak.');
         }
 
-        if (!$this->validate(['catatan_wakil_rektor_3' => 'required'])) {
+        if (!$this->validate(['catatan_wakilrektor3' => 'required'])) {
             return redirect()->back()->with('error', 'Catatan penolakan wajib diisi.');
         }
 
@@ -479,10 +479,10 @@ class ProposalController extends BaseController
         try {
             $this->proposalModel->update($id, [
                 'status' => 'DITOLAK',
-                'status_wakil_rektor_3' => 'DITOLAK',
-                'catatan_wakil_rektor_3' => $this->request->getPost('catatan_wakil_rektor_3'),
-                'verified_by_wakil_rektor_3' => session()->get('user_id'),
-                'verified_at_wakil_rektor_3' => date('Y-m-d H:i:s')
+                'status_wakilrektor3' => 'DITOLAK',
+                'catatan_wakilrektor3' => $this->request->getPost('catatan_wakilrektor3'),
+                'verified_by_wakilrektor3' => session()->get('user_id'),
+                'verified_at_wakilrektor3' => date('Y-m-d H:i:s')
             ]);
 
             $this->db->transCommit();
@@ -491,5 +491,47 @@ class ProposalController extends BaseController
             $this->db->transRollback();
             return redirect()->back()->with('error', 'Gagal menolak proposal.');
         }
+    }
+
+    /**
+     * Route wrapper for Approve Proposal
+     */
+    public function approve($id)
+    {
+        $roleId = session()->get('role_id');
+        if ($roleId == 2) {
+            return $this->approveByKemahasiswaan($id);
+        } elseif ($roleId == 3) {
+            return $this->approveByWakilRektor3($id);
+        }
+        return redirect()->back()->with('error', 'Akses ditolak.');
+    }
+
+    /**
+     * Route wrapper for Revisi Proposal
+     */
+    public function revisi($id)
+    {
+        $roleId = session()->get('role_id');
+        if ($roleId == 2) {
+            return $this->revisiByKemahasiswaan($id);
+        } elseif ($roleId == 3) {
+            return $this->revisiByWakilRektor3($id);
+        }
+        return redirect()->back()->with('error', 'Akses ditolak.');
+    }
+
+    /**
+     * Route wrapper for Tolak Proposal
+     */
+    public function tolak($id)
+    {
+        $roleId = session()->get('role_id');
+        if ($roleId == 2) {
+            return $this->tolakByKemahasiswaan($id);
+        } elseif ($roleId == 3) {
+            return $this->tolakByWakilRektor3($id);
+        }
+        return redirect()->back()->with('error', 'Akses ditolak.');
     }
 }

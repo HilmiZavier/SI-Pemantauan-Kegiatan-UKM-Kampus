@@ -14,6 +14,7 @@ class UserModel extends Model
         'ukm_id',
         'nama',
         'email',
-        'password'
+        'password',
+        'foto'
     ];
 }

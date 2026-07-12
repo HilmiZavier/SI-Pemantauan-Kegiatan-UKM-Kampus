@@ -42,14 +42,13 @@ class LPJKegiatanController extends BaseController
             'lpj' => $lpj
         ];
         
-        // View tidak dibuat sesuai instruksi
-        // return view('lpj/index', $data);
+        return view('lpj/index', $data);
     }
 
     /**
      * Menampilkan detail LPJ
      */
-    public function detail($id)
+    public function show($id)
     {
         $roleId = session('role_id');
         
@@ -74,7 +73,7 @@ class LPJKegiatanController extends BaseController
             'lpj' => $lpj
         ];
         
-        // return view('lpj/detail', $data);
+        return view('lpj/show', $data);
     }
 
     /**
@@ -96,7 +95,7 @@ class LPJKegiatanController extends BaseController
             'kegiatan' => $kegiatan
         ];
         
-        // return view('lpj/create', $data);
+        return view('lpj/create', $data);
     }
 
     /**
@@ -175,7 +174,7 @@ class LPJKegiatanController extends BaseController
             return redirect()->back()->with('error', 'Data LPJ tidak ditemukan atau akses ditolak.');
         }
         
-        if (!in_array($lpj['status'], ['PENGAJUAN', 'REVISI_KEMAHASISWAAN', 'REVISI_WAKILREKTOR3'])) {
+        if (!in_array($lpj['status'], ['PENGAJUAN', 'REVISI_KEMAHASISWAAN', 'REVISI_WAKIL_REKTOR_3'])) {
             return redirect()->back()->with('error', 'LPJ tidak dapat diubah karena sedang dalam proses verifikasi atau sudah disetujui.');
         }
         
@@ -189,7 +188,7 @@ class LPJKegiatanController extends BaseController
             'kegiatan' => $kegiatan
         ];
         
-        // return view('lpj/edit', $data);
+        return view('lpj/edit', $data);
     }
 
     /**
@@ -211,7 +210,7 @@ class LPJKegiatanController extends BaseController
             return redirect()->back()->with('error', 'Data LPJ tidak ditemukan atau akses ditolak.');
         }
         
-        if (!in_array($lpj['status'], ['PENGAJUAN', 'REVISI_KEMAHASISWAAN', 'REVISI_WAKILREKTOR3'])) {
+        if (!in_array($lpj['status'], ['PENGAJUAN', 'REVISI_KEMAHASISWAAN', 'REVISI_WAKIL_REKTOR_3'])) {
             return redirect()->back()->with('error', 'LPJ tidak dapat diubah karena sedang dalam proses verifikasi atau sudah disetujui.');
         }
         
@@ -280,7 +279,7 @@ class LPJKegiatanController extends BaseController
             return redirect()->back()->with('error', 'Data LPJ tidak ditemukan atau akses ditolak.');
         }
         
-        if (!in_array($lpj['status'], ['PENGAJUAN', 'REVISI_KEMAHASISWAAN', 'REVISI_WAKILREKTOR3'])) {
+        if (!in_array($lpj['status'], ['PENGAJUAN', 'REVISI_KEMAHASISWAAN', 'REVISI_WAKIL_REKTOR_3'])) {
             return redirect()->back()->with('error', 'LPJ tidak dapat dihapus karena sudah dalam proses verifikasi atau disetujui.');
         }
         
@@ -313,7 +312,7 @@ class LPJKegiatanController extends BaseController
         $this->db->transBegin();
         try {
             $this->lpjModel->update($id, [
-                'status' => 'VERIFIKASI_WAKILREKTOR3',
+                'status' => 'VERIFIKASI_WAKIL_REKTOR_3',
                 'status_kemahasiswaan' => 'APPROVED',
                 'verified_by_kemahasiswaan' => session('user_id'),
                 'verified_at_kemahasiswaan' => date('Y-m-d H:i:s')
@@ -446,7 +445,7 @@ class LPJKegiatanController extends BaseController
         $this->db->transBegin();
         try {
             $this->lpjModel->update($id, [
-                'status' => 'REVISI_WAKILREKTOR3',
+                'status' => 'REVISI_WAKIL_REKTOR_3',
                 'status_wakilrektor3' => 'REVISI',
                 'catatan_wakilrektor3' => $this->request->getPost('catatan_wakilrektor3')
             ]);
@@ -488,5 +487,47 @@ class LPJKegiatanController extends BaseController
             $this->db->transRollback();
             return redirect()->back()->with('error', 'Gagal memproses penolakan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Route wrapper for Approve LPJ
+     */
+    public function approve($id)
+    {
+        $roleId = session()->get('role_id');
+        if ($roleId == 2) {
+            return $this->approveByKemahasiswaan($id);
+        } elseif ($roleId == 3) {
+            return $this->approveByWakilRektor3($id);
+        }
+        return redirect()->back()->with('error', 'Akses ditolak.');
+    }
+
+    /**
+     * Route wrapper for Revisi LPJ
+     */
+    public function revisi($id)
+    {
+        $roleId = session()->get('role_id');
+        if ($roleId == 2) {
+            return $this->revisiByKemahasiswaan($id);
+        } elseif ($roleId == 3) {
+            return $this->revisiByWakilRektor3($id);
+        }
+        return redirect()->back()->with('error', 'Akses ditolak.');
+    }
+
+    /**
+     * Route wrapper for Tolak LPJ
+     */
+    public function tolak($id)
+    {
+        $roleId = session()->get('role_id');
+        if ($roleId == 2) {
+            return $this->tolakByKemahasiswaan($id);
+        } elseif ($roleId == 3) {
+            return $this->tolakByWakilRektor3($id);
+        }
+        return redirect()->back()->with('error', 'Akses ditolak.');
     }
 }
